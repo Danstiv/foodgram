@@ -8,7 +8,7 @@ SECRET_KEY = 'q(%ng$f3l(=xbe$t2_t!xa8^oipn)4=aja8gw=8pqsvmq667tm'
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['web']
 
 
 
