@@ -26,8 +26,16 @@ class Ingredient(models.Model):
 
 class Recipe(models.Model):
     tags = models.ManyToManyField(Tag, related_name='recipes')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipes')
-    ingredients = models.ManyToManyField(Ingredient, through='RecipeIngredient', related_name='recipes')
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='recipes'
+    )
+    ingredients = models.ManyToManyField(
+        Ingredient,
+        through='RecipeIngredient',
+        related_name='recipes'
+    )
     name = models.CharField(max_length=200, unique=True)
     image = models.ImageField(upload_to='recipe-images')
     text = models.TextField()

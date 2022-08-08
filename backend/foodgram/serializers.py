@@ -28,7 +28,10 @@ class BaseRecipeSerializer(serializers.ModelSerializer):
         ]
 
 
-class RecipeIngredientSerializer(OverrideRootPartialMixin, serializers.Serializer):
+class RecipeIngredientSerializer(
+    OverrideRootPartialMixin,
+    serializers.Serializer
+):
     id = serializers.IntegerField()
     amount = serializers.IntegerField(min_value=1)
 
@@ -50,12 +53,16 @@ class RecipeCreateUpdateSerializer(BaseRecipeSerializer):
 
     def validate_ingredients(self, value):
         if not value:
-            raise serializers.ValidationError('Список ингредиентов не может быть пустым')
+            raise serializers.ValidationError(
+                'Список ингредиентов не может быть пустым'
+            )
         return value
 
     def validate_tags(self, value):
         if not value:
-            raise serializers.ValidationError('Список тегов не может быть пустым')
+            raise serializers.ValidationError(
+                'Список тегов не может быть пустым'
+            )
         return value
 
     def create(self, validated_data):
@@ -92,7 +99,9 @@ class RecipeCreateUpdateSerializer(BaseRecipeSerializer):
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='ingredient.id')
     name = serializers.CharField(source='ingredient.name')
-    measurement_unit = serializers.CharField(source='ingredient.measurement_unit')
+    measurement_unit = serializers.CharField(
+        source='ingredient.measurement_unit'
+    )
 
     class Meta:
         model = RecipeIngredient
@@ -103,11 +112,16 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeListSerializer(BaseRecipeSerializer):
-    ingredients = IngredientInRecipeSerializer(many=True, source='recipe_ingredients')
+    ingredients = IngredientInRecipeSerializer(
+        many=True,
+        source='recipe_ingredients'
+    )
     tags = TagSerializer(many=True)
     author = UserSerializer()
     is_favorited = ObjectExistsInUserRelatedManagerField('favorite_recipes')
-    is_in_shopping_cart = ObjectExistsInUserRelatedManagerField('shopping_cart_recipes')
+    is_in_shopping_cart = ObjectExistsInUserRelatedManagerField(
+        'shopping_cart_recipes'
+    )
 
     class Meta(BaseRecipeSerializer.Meta):
         fields = BaseRecipeSerializer.Meta.fields + [

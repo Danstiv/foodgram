@@ -59,7 +59,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def partial_update(self, request, pk=None):
         instance = self.get_object()
-        serializer = RecipeCreateUpdateSerializer(instance, data=request.data, partial=True)
+        serializer = RecipeCreateUpdateSerializer(
+            instance,
+            data=request.data,
+            partial=True
+        )
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()
         return Response(RecipeListSerializer(instance).data)
@@ -104,15 +108,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ingredients = {}
         for recipe in request.user.shopping_cart_recipes.all():
             for recipe_ingredient in recipe.recipe_ingredients.all():
-                if recipe_ingredient.ingredient.name not in ingredients:
-                    ingredients[recipe_ingredient.ingredient.name] = {
+                ingredient = recipe_ingredient.ingredient
+                amount = recipe_ingredient.amount
+                if ingredient.name not in ingredients:
+                    ingredients[ingredient.name] = {
                         'amount': 0,
-                        'measurement_unit': recipe_ingredient.ingredient.measurement_unit
+                        'measurement_unit': ingredient.measurement_unit
                     }
-                ingredients[recipe_ingredient.ingredient.name]['amount'] += recipe_ingredient.amount
+                ingredients[ingredient.name]['amount'] += amount
         ingredients = sorted(ingredients.items(), key=lambda v: v[0])
         result = []
         for i, ingredient in enumerate(ingredients, start=1):
-            result.append(f'{i}. {ingredient[0]} ({ingredient[1]["measurement_unit"]}) — {ingredient[1]["amount"]}.')
+            result.append(
+                f'{i}. {ingredient[0]} ({ingredient[1]["measurement_unit"]})'
+                f' — {ingredient[1]["amount"]}.'
+            )
         result = '\n'.join(result)
         return HttpResponse(result.encode())

@@ -23,8 +23,14 @@ class User(AbstractUser):
         related_name='subscribers',
         symmetrical=False
     )
-    favorite_recipes = models.ManyToManyField('foodgram.Recipe', related_name='favorited_by')
-    shopping_cart_recipes = models.ManyToManyField('foodgram.Recipe', related_name='added_to_shopping_cart_by')
+    favorite_recipes = models.ManyToManyField(
+        'foodgram.Recipe',
+        related_name='favorited_by'
+    )
+    shopping_cart_recipes = models.ManyToManyField(
+        'foodgram.Recipe',
+        related_name='added_to_shopping_cart_by'
+    )
 
     class Meta:
         ordering = ['-id']

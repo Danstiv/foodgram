@@ -1,11 +1,7 @@
 from django.db import models
 from django_filters import rest_framework as filters
 
-from .models import Ingredient, Recipe, Tag
-
-
-class CharInFilter(filters.BaseInFilter, filters.CharFilter):
-    pass
+from .models import Ingredient, Recipe
 
 
 class IngredientFilter(filters.FilterSet):
@@ -30,8 +26,14 @@ class IngredientFilter(filters.FilterSet):
 
 
 class RecipeFilter(filters.FilterSet):
-    is_favorited = filters.BooleanFilter(field_name='favorited_by', method='custom_flag_filter')
-    is_in_shopping_cart = filters.BooleanFilter(field_name='added_to_shopping_cart_by', method='custom_flag_filter')
+    is_favorited = filters.BooleanFilter(
+        field_name='favorited_by',
+        method='custom_flag_filter'
+    )
+    is_in_shopping_cart = filters.BooleanFilter(
+        field_name='added_to_shopping_cart_by',
+        method='custom_flag_filter'
+    )
     author = filters.NumberFilter(field_name='author_id')
     tags = filters.AllValuesMultipleFilter(field_name='tags__slug')
 

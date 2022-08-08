@@ -39,9 +39,13 @@ class UserViewSet(
         serializer = CustomUserCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         errors = []
-        if User.objects.filter(username=serializer.validated_data['username']).exists():
+        if User.objects.filter(
+            username=serializer.validated_data['username']
+        ).exists():
             errors.append('Имя пользователя занято.')
-        if User.objects.filter(email=serializer.validated_data['email']).exists():
+        if User.objects.filter(
+            email=serializer.validated_data['email']
+        ).exists():
             errors.append('Email занят.')
         if errors:
             return Response(
@@ -75,8 +79,14 @@ class UserViewSet(
     def set_password(self, request):
         serializer = SetPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        if not check_password(serializer.validated_data['current_password'], request.user.password):
-            return Response({'errors': 'Текущий пароль указан неверно'}, status=400)
+        if not check_password(
+            serializer.validated_data['current_password'],
+            request.user.password
+        ):
+            return Response(
+                {'errors': 'Текущий пароль указан неверно'},
+                status=400
+            )
         request.user.set_password(serializer.validated_data['new_password'])
         request.user.save()
         return Response(status=204)
@@ -90,7 +100,11 @@ class UserViewSet(
         queryset = request.user.subscribed_to.all()
         paginator = CustomPagination()
         page = paginator.paginate_queryset(queryset, self.request, view=self)
-        serializer = UserWithRecipesSerializer(page, many=True, context={'request': request})
+        serializer = UserWithRecipesSerializer(
+            page,
+            many=True,
+            context={'request': request}
+        )
         return paginator.get_paginated_response(serializer.data)
 
     @action(

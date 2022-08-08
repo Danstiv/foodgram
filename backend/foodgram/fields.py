@@ -1,4 +1,3 @@
-import base64
 import binascii
 import mimetypes
 import urllib
@@ -19,7 +18,7 @@ class Base64ImageField(serializers.ImageField):
         content_type = result.headers.get('Content-Type')
         extension = mimetypes.guess_extension(content_type)
         return super().to_internal_value(SimpleUploadedFile(
-            name='image'+extension,
+            name='image' + extension,
             content=result.read(),
             content_type=content_type
         ))

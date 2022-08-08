@@ -31,7 +31,9 @@ class UserWithRecipesSerializer(UserSerializer):
         fields = UserSerializer.Meta.fields + ['recipes']
 
     def get_recipes(self, obj):
-        limit = int(self.context['request'].query_params.get('recipes_limit', 10))
+        limit = int(
+            self.context['request'].query_params.get('recipes_limit', 10)
+        )
         limit = max(1, min(100, limit))
         recipes = obj.recipes.all()[:limit]
         return RecipeMinifiedSerializer(recipes, many=True).data
