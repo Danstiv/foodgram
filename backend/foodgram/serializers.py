@@ -7,6 +7,7 @@ from .fields import Base64ImageField
 from .models import Ingredient, Recipe, RecipeIngredient, Tag
 from .utils import prettify_recipe_image
 
+
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
