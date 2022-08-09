@@ -1,10 +1,11 @@
+from django.db.models import Sum
 from django.http import HttpResponse
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .filters import IngredientFilter, RecipeFilter
-from .models import Ingredient, Recipe, Tag
+from .models import Ingredient, Recipe, RecipeIngredient, Tag
 from .pagination import RecipePagination
 from .permissions import IsReadOnlyOrIsAuthor
 from .serializers import (
@@ -84,23 +85,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def download_shopping_cart(self, request):
-        ingredients = {}
-        for recipe in request.user.shopping_cart_recipes.all():
-            for recipe_ingredient in recipe.recipe_ingredients.all():
-                ingredient = recipe_ingredient.ingredient
-                amount = recipe_ingredient.amount
-                if ingredient.name not in ingredients:
-                    ingredients[ingredient.name] = {
-                        'amount': 0,
-                        'measurement_unit': ingredient.measurement_unit
-                    }
-                ingredients[ingredient.name]['amount'] += amount
-        ingredients = sorted(ingredients.items(), key=lambda v: v[0])
+        ingredients = RecipeIngredient.objects.filter(
+            recipe__added_to_shopping_cart_by=request.user
+        ).values(
+            'ingredient__name', 'ingredient__measurement_unit'
+        ).order_by('ingredient__name').annotate(
+            amount=Sum('amount')
+        )
         result = []
         for i, ingredient in enumerate(ingredients, start=1):
             result.append(
-                f'{i}. {ingredient[0]} ({ingredient[1]["measurement_unit"]})'
-                f' — {ingredient[1]["amount"]}.'
+                f'{i}. {ingredient["ingredient__name"]} '
+                f'({ingredient["ingredient__measurement_unit"]})'
+                f' — {ingredient["amount"]}.'
             )
         result = '\n'.join(result)
         return HttpResponse(result.encode())
