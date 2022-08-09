@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.response import Response
 
 
@@ -43,15 +44,15 @@ def user_related_create_destroy_action(
         if manager.filter(id=pk).exists():
             return Response(
                 {'errors': already_exists_error},
-                status=400
+                status=status.HTTP_400_BAD_REQUEST
             )
         manager.add(obj)
         serializer = serializer_class(obj, context={'request': request})
-        return Response(serializer.data, status=201)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     if not manager.filter(id=pk).exists():
         return Response(
             {'errors': not_exists_error},
-            status=400
+            status=status.HTTP_400_BAD_REQUEST
         )
     manager.remove(obj)
-    return Response(status=204)
+    return Response(status=status.HTTP_204_NO_CONTENT)

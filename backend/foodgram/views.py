@@ -1,7 +1,7 @@
 import os
 
 from django.http import HttpResponse
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -52,7 +52,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         dirname, filename = os.path.split(instance.image.name)
         instance.image.name = os.path.join(dirname, new_filename)
         instance.save()
-        return Response(RecipeListSerializer(instance).data, status=201)
+        return Response(
+            RecipeListSerializer(instance).data,
+            status=status.HTTP_201_CREATED
+        )
 
     def update(self, request, pk=None):
         return self.http_method_not_allowed(request)

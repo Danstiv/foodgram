@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import check_password
-from rest_framework import mixins, permissions, viewsets
+from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -50,7 +50,7 @@ class UserViewSet(
         if errors:
             return Response(
                 {'errors': '\n'.join(errors)},
-                status=400
+                status=status.HTTP_400_BAD_REQUEST
             )
         user = User.objects.create_user(
             username=serializer.validated_data['username'],
@@ -60,7 +60,7 @@ class UserViewSet(
             password=serializer.validated_data['password'],
         )
         serializer = CustomUserResponseOnCreateSerializer(user)
-        return Response(serializer.data, status=201)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(
         methods=['GET'],
@@ -85,11 +85,11 @@ class UserViewSet(
         ):
             return Response(
                 {'errors': 'Текущий пароль указан неверно'},
-                status=400
+                status=status.HTTP_400_BAD_REQUEST
             )
         request.user.set_password(serializer.validated_data['new_password'])
         request.user.save()
-        return Response(status=204)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
         methods=['GET'],
