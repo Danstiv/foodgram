@@ -1,5 +1,3 @@
-import os
-
 from django.http import HttpResponse
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
@@ -34,14 +32,20 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     model = Recipe
-    serializer_class = RecipeListSerializer
     queryset = Recipe.objects.all()
     permission_classes = [IsReadOnlyOrIsAuthor]
     pagination_class = RecipePagination
     filterset_class = RecipeFilter
 
-    def update(self, request, pk=None):
-        return self.http_method_not_allowed(request)
+    def get_serializer_class(self):
+        if self.action in ['create', 'partial_update']:
+            return RecipeCreateUpdateSerializer
+        return RecipeListSerializer
+
+    def update(self, request, *args, **kwargs):
+        if not kwargs.get('partial', False):
+            return self.http_method_not_allowed(request)
+        return super().update(request, *args, **kwargs)
 
     @action(
         methods=['POST', 'DELETE'],

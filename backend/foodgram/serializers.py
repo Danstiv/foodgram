@@ -5,7 +5,7 @@ from core.utils import OverrideRootPartialMixin
 from users.serializers import UserSerializer
 from .fields import Base64ImageField
 from .models import Ingredient, Recipe, RecipeIngredient, Tag
-
+from .utils import prettify_recipe_image
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -96,14 +96,7 @@ class RecipeCreateUpdateSerializer(BaseRecipeSerializer):
         tags = validated_data.pop('tags')
         recipe = Recipe(author=self.context['request'].user, **validated_data)
         recipe.save()
-        dirname, filename = os.path.split(recipe.image.path)
-        filename, extension = os.path.splitext(filename)
-        new_filename = f'{recipe.id}{extension}'
-        new_path = os.path.join(dirname, new_filename)
-        os.rename(recipe.image.path, new_path)
-        dirname, filename = os.path.split(recipe.image.name)
-        recipe.image.name = os.path.join(dirname, new_filename)
-        recipe.save()
+        recipe = prettify_recipe_image(recipe)
         self.set_recipe_ingredients(recipe, ingredients)
         recipe.tags.set(tags)
         return recipe
@@ -111,7 +104,9 @@ class RecipeCreateUpdateSerializer(BaseRecipeSerializer):
     def update(self, recipe, validated_data):
         ingredients = validated_data.pop('ingredients', [])
         tags = validated_data.pop('tags', [])
-        super().update(recipe, validated_data)
+        recipe = super().update(recipe, validated_data)
+        if 'image' in validated_data:
+            recipe = prettify_recipe_image(recipe, update=True)
         if ingredients:
             recipe.ingredients.clear()
             self.set_recipe_ingredients(recipe, ingredients)
