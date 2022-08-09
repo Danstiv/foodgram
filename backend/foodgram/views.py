@@ -40,36 +40,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = RecipePagination
     filterset_class = RecipeFilter
 
-    def create(self, request):
-        serializer = RecipeCreateUpdateSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        instance = serializer.save(author=request.user)
-        dirname, filename = os.path.split(instance.image.path)
-        filename, extension = os.path.splitext(filename)
-        new_filename = f'{instance.id}{extension}'
-        new_path = os.path.join(dirname, new_filename)
-        os.rename(instance.image.path, new_path)
-        dirname, filename = os.path.split(instance.image.name)
-        instance.image.name = os.path.join(dirname, new_filename)
-        instance.save()
-        return Response(
-            RecipeListSerializer(instance).data,
-            status=status.HTTP_201_CREATED
-        )
-
     def update(self, request, pk=None):
         return self.http_method_not_allowed(request)
-
-    def partial_update(self, request, pk=None):
-        instance = self.get_object()
-        serializer = RecipeCreateUpdateSerializer(
-            instance,
-            data=request.data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        instance = serializer.save()
-        return Response(RecipeListSerializer(instance).data)
 
     @action(
         methods=['POST', 'DELETE'],

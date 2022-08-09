@@ -60,7 +60,8 @@ class RecipeCreateUpdateSerializer(BaseRecipeSerializer):
         for ingredient in value:
             if ingredient['id'] in ids:
                 raise serializers.ValidationError(
-                    'Список ингредиентов не должен содержать дублирующиеся элементы'
+                    'Список ингредиентов не должен содержать '
+                    'дублирующиеся элементы'
                 )
             ids.append(ingredient['id'])
         return value
@@ -87,10 +88,21 @@ class RecipeCreateUpdateSerializer(BaseRecipeSerializer):
                 through_defaults={'amount': ingredient['amount']}
             )
 
+    def to_representation(self, recipe):
+        return RecipeListSerializer(recipe).data
+
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        recipe = Recipe(**validated_data)
+        recipe = Recipe(author=self.context['request'].user, **validated_data)
+        recipe.save()
+        dirname, filename = os.path.split(recipe.image.path)
+        filename, extension = os.path.splitext(filename)
+        new_filename = f'{recipe.id}{extension}'
+        new_path = os.path.join(dirname, new_filename)
+        os.rename(recipe.image.path, new_path)
+        dirname, filename = os.path.split(recipe.image.name)
+        recipe.image.name = os.path.join(dirname, new_filename)
         recipe.save()
         self.set_recipe_ingredients(recipe, ingredients)
         recipe.tags.set(tags)
