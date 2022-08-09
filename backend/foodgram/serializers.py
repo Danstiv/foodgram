@@ -56,6 +56,13 @@ class RecipeCreateUpdateSerializer(BaseRecipeSerializer):
             raise serializers.ValidationError(
                 'Список ингредиентов не может быть пустым'
             )
+        ids = []
+        for ingredient in value:
+            if ingredient['id'] in ids:
+                raise serializers.ValidationError(
+                    'Список ингредиентов не должен содержать дублирующиеся элементы'
+                )
+            ids.append(ingredient['id'])
         return value
 
     def validate_tags(self, value):
@@ -63,37 +70,42 @@ class RecipeCreateUpdateSerializer(BaseRecipeSerializer):
             raise serializers.ValidationError(
                 'Список тегов не может быть пустым'
             )
+        ids = []
+        for tag_id in value:
+            if tag_id in ids:
+                raise serializers.ValidationError(
+                    'Список тегов не должен содержать дублирующиеся элементы'
+                )
+            ids.append(tag_id)
         return value
+
+    @staticmethod
+    def set_recipe_ingredients(recipe, ingredients):
+        for ingredient in ingredients:
+            recipe.ingredients.add(
+                ingredient['id'],
+                through_defaults={'amount': ingredient['amount']}
+            )
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         recipe = Recipe(**validated_data)
         recipe.save()
-        for ingredient in ingredients:
-            recipe.ingredients.add(
-                ingredient['id'],
-                through_defaults={'amount': ingredient['amount']}
-            )
+        self.set_recipe_ingredients(recipe, ingredients)
         recipe.tags.set(tags)
         return recipe
 
-    def update(self, instance, validated_data):
+    def update(self, recipe, validated_data):
         ingredients = validated_data.pop('ingredients', [])
         tags = validated_data.pop('tags', [])
-        for k, v in validated_data.items():
-            setattr(instance, k, v)
+        super().update(recipe, validated_data)
         if ingredients:
-            instance.ingredients.clear()
-        for ingredient in ingredients:
-            instance.ingredients.add(
-                ingredient['id'],
-                through_defaults={'amount': ingredient['amount']}
-            )
+            recipe.ingredients.clear()
+            self.set_recipe_ingredients(recipe, ingredients)
         if tags:
-            instance.tags.set(tags, clear=True)
-        instance.save()
-        return instance
+            recipe.tags.set(tags, clear=True)
+        return recipe
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
