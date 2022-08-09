@@ -11,7 +11,7 @@ def validate_username(value):
             message='допустимы только буквы, цифры и @/./+/-/_',
             code='invalid'
         )
-    if value == 'me':
+    if value.lower() == 'me':
         raise ValidationError(
             'Имя пользователя me не может быть использовано',
             code='invalid'
