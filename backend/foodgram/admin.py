@@ -14,6 +14,8 @@ class RecipeAdmin(admin.ModelAdmin):
 
     def favorited_count(self, obj):
         return obj.favorited_by.count()
+    favorited_count.short_description = 'Добавлено в избранное'
+    favorited_count.admin_order_field = '-favorited_by__count'
 
 
 @admin.register(Ingredient)

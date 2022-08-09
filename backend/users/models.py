@@ -21,19 +21,24 @@ class User(AbstractUser):
         'self',
         through='Subscription',
         related_name='subscribers',
-        symmetrical=False
+        symmetrical=False,
+        verbose_name='Подписан на'
     )
     favorite_recipes = models.ManyToManyField(
         'foodgram.Recipe',
-        related_name='favorited_by'
+        related_name='favorited_by',
+        verbose_name='Рецепты в избранном'
     )
     shopping_cart_recipes = models.ManyToManyField(
         'foodgram.Recipe',
-        related_name='added_to_shopping_cart_by'
+        related_name='added_to_shopping_cart_by',
+        verbose_name='Рецепты в списке покупок'
     )
 
     class Meta:
         ordering = ['-id']
+        verbose_name = 'пользователь'
+        verbose_name_plural = 'пользователи'
 
 
 class Subscription(models.Model):
