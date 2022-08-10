@@ -89,14 +89,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).values(
             'ingredient__name', 'ingredient__measurement_unit'
         ).order_by('ingredient__name').annotate(
-            amount=Sum('amount')
+            total_amount=Sum('amount')
         )
         result = []
         for i, ingredient in enumerate(ingredients, start=1):
             result.append(
                 f'{i}. {ingredient["ingredient__name"]} '
                 f'({ingredient["ingredient__measurement_unit"]})'
-                f' — {ingredient["amount"]}.'
+                f' — {ingredient["total_amount"]}.'
             )
         result = '\n'.join(result)
         return HttpResponse(result.encode())

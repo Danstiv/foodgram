@@ -1,9 +1,8 @@
 from rest_framework import serializers
 
-from core.fields import ObjectExistsInUserRelatedManagerField
+from core.fields import Base64ImageField, ObjectExistsInUserRelatedManagerField
 from core.utils import OverrideRootPartialMixin
 from users.serializers import UserSerializer
-from .fields import Base64ImageField
 from .models import Ingredient, Recipe, RecipeIngredient, Tag
 from .utils import prettify_recipe_image
 
