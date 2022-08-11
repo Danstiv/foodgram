@@ -29,7 +29,7 @@ class UserWithRecipesSerializer(UserSerializer):
     recipes_count = serializers.SerializerMethodField()
 
     class Meta(UserSerializer.Meta):
-        fields = UserSerializer.Meta.fields + ['recipes']
+        fields = UserSerializer.Meta.fields + ['recipes', 'recipes_count']
 
     def get_recipes(self, obj):
         limit = int(
