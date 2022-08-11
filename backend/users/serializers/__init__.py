@@ -26,6 +26,7 @@ class CustomUserResponseOnCreateSerializer(UserDataSerializer):
 
 class UserWithRecipesSerializer(UserSerializer):
     recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
 
     class Meta(UserSerializer.Meta):
         fields = UserSerializer.Meta.fields + ['recipes']
@@ -37,6 +38,9 @@ class UserWithRecipesSerializer(UserSerializer):
         limit = max(1, min(100, limit))
         recipes = obj.recipes.all()[:limit]
         return RecipeMinifiedSerializer(recipes, many=True).data
+
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()
 
 
 class SetPasswordSerializer(serializers.Serializer):
