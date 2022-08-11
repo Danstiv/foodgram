@@ -99,4 +99,4 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 f' — {ingredient["total_amount"]}.'
             )
         result = '\n'.join(result)
-        return HttpResponse(result.encode())
+        return HttpResponse(result.encode(), content_type='text/plain')
